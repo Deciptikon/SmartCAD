@@ -1,9 +1,10 @@
-import { colorRed } from "../../colors.js";
+import { colorRed, colorDashLineBlock } from "../../colors.js";
 import { input } from "../../InputManager.js";
+import { DASH_STYLE_BASE } from "../../constants.js";
 
 export default class Block {
-  constructor(positionView, size, color = colorRed, scale = 1.0) {
-    this.positionView = positionView;
+  constructor(position, size, color = colorRed, scale = 1.0) {
+    this.position = position;
     this.size = size;
     console.log(`Блок создан... ${color}`);
     this.color = color;
@@ -13,46 +14,63 @@ export default class Block {
     //console.log("Блок создан...");
   }
 
-  setCurrent(val) {
-    this.current = val !== 0 ? true : false;
+  setCurrent(isCurrent) {
+    this.current = isCurrent;
   }
 
-  setEnable(val) {
-    this.enable = val !== 0 ? true : false;
+  setEnable(isEnable) {
+    this.enable = isEnable;
   }
 
   render(ctx, shift) {
     //console.log("Блок отрисован...");
     if (ctx !== null) {
+      ctx.save();
+
       ctx.fillStyle = this.color;
       ctx.fillRect(
-        this.positionView.x + shift.x,
-        this.positionView.y + shift.y,
+        this.position.x + shift.x,
+        this.position.y + shift.y,
         this.size.w,
         this.size.h
       );
       if (this.current) {
-        ctx.strokeStyle = "black"; // Цвет линии
-        ctx.lineWidth = 0.5; // Толщина линии
+        ctx.strokeStyle = colorDashLineBlock;
+        ctx.setLineDash(DASH_STYLE_BASE);
+        ctx.lineWidth = 1.0;
         ctx.strokeRect(
-          this.positionView.x + shift.x,
-          this.positionView.y + shift.y,
+          this.position.x + shift.x,
+          this.position.y + shift.y,
           this.size.w,
           this.size.h
         );
       }
+      ctx.restore();
     } else {
       //
     }
   }
 
   update() {
-    if (input.keys.has("ArrowRight")) this.positionView.x += 1;
-    if (input.keys.has("ArrowLeft")) this.positionView.x -= 1;
-    if (input.keys.has("ArrowDown")) this.positionView.y += 1;
-    if (input.keys.has("ArrowUp")) this.positionView.y -= 1;
+    if (this.current !== true) {
+      return;
+    }
 
-    this.positionView.x = this.positionView.x < 0 ? 0 : this.positionView.x;
-    this.positionView.y = this.positionView.y < 0 ? 0 : this.positionView.y;
+    //if (input.keys.has("ArrowRight")) this.position.x += 10;
+    //if (input.keys.has("ArrowLeft")) this.position.x -= 10;
+    //if (input.keys.has("ArrowDown")) this.position.y += 10;
+    //if (input.keys.has("ArrowUp")) this.position.y -= 10;
+
+    this.position.x = this.position.x < 0 ? 0 : this.position.x;
+    this.position.y = this.position.y < 0 ? 0 : this.position.y;
+  }
+
+  pointInBlock(point) {
+    const px = point.x - this.position.x;
+    const py = point.y - this.position.y;
+    if (!(px < 0) && !(px > this.size.w) && !(py < 0) && !(py > this.size.h)) {
+      return true;
+    }
+    return false;
   }
 }

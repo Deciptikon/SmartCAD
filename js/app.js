@@ -33,7 +33,6 @@ let s = new Sheet(
 
 s.addBlock(b0);
 s.addBlock(b1);
-b1.setCurrent(true);
 
 function animate() {
   requestAnimationFrame(animate);
@@ -44,6 +43,8 @@ function animate() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     s.update();
+    s.updateBlocks();
+
     s.renderBackground(ctx);
     s.renderBlocks(ctx);
   }
